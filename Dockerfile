@@ -1,11 +1,14 @@
 # 1. FROM con imagen base recomendada
 FROM python:3.11-slim
 
-# Comando crítico para actualizar el sistema y asegurar 0 vulnerabilidades en Trivy
+# Comando para actualizar el sistema base
 RUN apt-get update && apt-get upgrade -y && apt-get clean
 
 # 2. WORKDIR para establecer el directorio de trabajo
 WORKDIR /app
+
+# [CORRECCIÓN TRIVY]: Actualizar las herramientas internas de Python a versiones seguras
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel jaraco.context
 
 # 3. COPY y RUN para copiar archivos e instalar dependencias
 COPY requirements.txt .
