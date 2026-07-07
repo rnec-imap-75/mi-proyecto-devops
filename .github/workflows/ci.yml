@@ -11,37 +11,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1: Descargar el código del repositorio
+      # 1 — Checkout del código
       - name: Checkout del código
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
 
-      # 2: Instalar dependencias (Simulado con Node.js como ejemplo estándar)
-      - name: Instalar dependencias
+      # 2 — Instalación de dependencias
+      - name: Instalación de dependencias
         run: |
-          echo "Simulando instalación de dependencias..."
-          npm init -y
-          # Puedes emular la instalación real de paquetes aquí si tu proyecto lo requiere
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      # 3: Ejecutar pruebas del sistema
-      - name: Ejecutar pruebas
+      # 3 — Ejecución de tests automáticos
+      - name: Ejecución de tests automáticos
         run: |
-          echo "Ejecutando pruebas unitarias e integración..."
-          echo "Tests pasados con éxito."
+          python -m pytest tests/ -v
 
-      # 4: Construir la imagen de Docker usando una base limpia y segura
-      - name: Construir imagen Docker
+      # 4 — Build de la imagen Docker
+      - name: Build de la imagen Docker
         run: |
-          echo "Creando un Dockerfile temporal limpio..."
-          echo "FROM alpine:latest" > Dockerfile
-          echo "RUN apk update && apk upgrade" >> Dockerfile
-          docker build -t mi-app-devops:latest .
+          docker build -t mi-app-devops:${{ github.sha }} .
 
-      # 5: Escaneo de seguridad con Trivy
+      # 5 — Escaneo de seguridad con Trivy
       - name: Escaneo de seguridad con Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'mi-app-devops:latest'
+          image-ref: 'mi-app-devops:${{ github.sha }}'
           format: 'table'
-          exit-code: '0' # Permite que termine en verde
+          exit-code: '1'
           ignore-unfixed: true
           severity: 'HIGH,CRITICAL'
